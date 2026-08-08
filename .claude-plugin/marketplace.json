@@ -1,0 +1,17 @@
+{
+  "name": "receipts",
+  "owner": {
+    "name": "Laufer 108",
+    "url": "https://github.com/anonim31337-glitch"
+  },
+  "plugins": [
+    {
+      "name": "receipts",
+      "source": "./",
+      "description": "A step is not done because the command exited 0. Gates for agent workflows that refuse to lie in the direction of OK.",
+      "version": "0.1.0",
+      "category": "quality",
+      "keywords": ["gates", "verification", "pipeline", "video", "ffmpeg"]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "receipts",
+  "version": "0.1.0",
+  "description": "A step is not done because the command exited 0. It is done when the artifact exists and passes a check. Gates for agent workflows that refuse to lie in the direction of OK.",
+  "author": {
+    "name": "Laufer 108",
+    "url": "https://www.youtube.com/@Laufer108"
+  },
+  "homepage": "https://github.com/anonim31337-glitch/receipts",
+  "repository": "https://github.com/anonim31337-glitch/receipts",
+  "license": "MIT",
+  "keywords": [
+    "gates",
+    "verification",
+    "pipeline",
+    "quality",
+    "video",
+    "ffmpeg",
+    "agent-workflow"
+  ]
+}
