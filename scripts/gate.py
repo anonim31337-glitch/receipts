@@ -17,6 +17,7 @@ Exit code 0 from a build tool means "I did not crash". It does not mean
 import argparse
 import json
 import os
+import shlex
 import subprocess
 import sys
 import time
@@ -47,7 +48,13 @@ def main():
     started = time.time()
 
     if a.cmd:
-        r = subprocess.run(a.cmd, shell=a.shell or os.name == "nt")
+        # POSIX: subprocess with shell=False needs a LIST. Passing the string
+        # raises FileNotFoundError, so the gate died instead of judging.
+        # Invisible on Windows, where shell defaults to True — caught by CI
+        # on Linux, which is the entire reason CI exists.
+        przez_powloke = a.shell or os.name == "nt"
+        polecenie = a.cmd if przez_powloke else shlex.split(a.cmd)
+        r = subprocess.run(polecenie, shell=przez_powloke)
         if r.returncode != 0:
             say("BAD", "exit code", f"{r.returncode} — command failed")
             print("\nREJECTED: the command itself failed.")
