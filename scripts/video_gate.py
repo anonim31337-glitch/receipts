@@ -58,6 +58,10 @@ def main():
     p.add_argument("--tolerance", type=float, default=2.0)
     p.add_argument("--freeze-seconds", type=float, default=2.0,
                    help="a still frame longer than this counts as a defect")
+    p.add_argument("--source", action="store_true",
+                   help="this is a SOURCE clip for an edit, not a deliverable: "
+                        "silence and a static tail are expected, so those "
+                        "checks report 'not applicable' instead of failing")
     a = p.parse_args()
 
     v = probe(a.ffprobe, a.film, "v:0")
@@ -73,7 +77,8 @@ def main():
 
     # 1. IMAGE vs SOUND. Shipped defect: 289 s of image under 528 s of audio.
     if da is None:
-        add("?", "audio track", "no audio stream found")
+        add("?" if a.source else "BAD", "audio track",
+            "no audio stream" + (" — expected in a source clip" if a.source else ""))
     else:
         d = abs(dv - da)
         add("OK" if d <= 1.5 else "BAD", "image vs sound",
@@ -99,7 +104,9 @@ def main():
     r = run([a.ffmpeg, "-i", a.film, "-vf",
              f"freezedetect=n=0.001:d={a.freeze_seconds}", "-f", "null", "-"])
     fr = re.findall(r"freeze_start: ([\d.]+)", r.stderr or "")
-    add("OK" if not fr else "BAD", "frozen picture",
+    # Zrodlo do montazu konczy sie statyka z zalozenia — animacja dobiega konca
+    # i ostatnia klatka stoi. To wada dopiero w produkcie, nie w polprodukcie.
+    add("?" if (a.source and fr) else "OK" if not fr else "BAD", "frozen picture",
         "none" if not fr else f"{len(fr)} at " + ", ".join(f"{float(x):.0f}s" for x in fr[:6]),
         "extract that exact frame and LOOK at it — a freeze is usually an empty frame")
 
@@ -120,8 +127,9 @@ def main():
             add("OK" if peak <= -1.0 else "BAD", "clipping",
                 f"peak {peak:.1f} dB, mean {mean:.1f} dB",
                 "peak above -1 dB will distort after platform transcoding")
-            add("OK" if mean > -35 else "BAD", "not silent",
-                f"mean {mean:.1f} dB")
+            add("?" if a.source else "OK" if mean > -35 else "BAD", "not silent",
+                f"mean {mean:.1f} dB" + (" (source clip — audio comes at edit)"
+                                         if a.source else ""))
         else:
             add("?", "loudness", "volumedetect returned nothing")
 
