@@ -31,6 +31,17 @@ repository**.
 | `receipts` | you are about to report something as done | forces every claimed step to name a command, an artifact, and a check that a *plausible failure* would trip |
 | `video-receipts` | before publishing or exporting a rendered video | checks the finished file the way a viewer experiences it |
 
+And one command, for when you want the discipline on demand rather than by
+habit:
+
+```
+/receipts:verify the migration script I just ran
+```
+
+It makes the agent name the artifact, check it with a predicate a plausible
+failure would trip, and say **"I don't know"** instead of "OK" when a check
+cannot run.
+
 Two scripts you can also run standalone, with no agent involved:
 
 ```bash
