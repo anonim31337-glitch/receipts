@@ -1,0 +1,46 @@
+name: gates
+
+# A repository about proving things has no business shipping unproven gates.
+# Every case in tests/test_gates.py is asserted both ways: an input that must
+# be accepted and one that must be rejected.
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Gate self-tests (both directions)
+        run: python tests/test_gates.py
+
+      - name: The gate must reject a command that produces nothing
+        run: |
+          set +e
+          python scripts/gate.py --cmd "true" --artifact does/not/exist.txt
+          code=$?
+          set -e
+          if [ "$code" -ne 1 ]; then
+            echo "expected exit 1, got $code — the gate let a lie through"
+            exit 1
+          fi
+          echo "rejected, as it must be"
+
+      - name: The gate must accept real work
+        run: |
+          mkdir -p out
+          printf '{"rows": [1, 2, 3]}' > out/data.json
+          python scripts/gate.py --artifact out/data.json --json-keys rows --min-bytes 5

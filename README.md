@@ -70,7 +70,7 @@ fails. So the design is biased against itself:
 - Prefer a check a *plausible failure* would trip. "The file exists" passes
   for empty files, truncated downloads, and black frames.
 
-Both scripts in this repo are tested both ways — they pass a known-good
+The gates in this repo are tested both ways on every push (Python 3.9, 3.11, 3.13 — see `.github/workflows/test.yml`): eleven cases, each asserting that a good input is accepted **and** that a matching bad input is rejected. Both scripts are tested both ways — they pass a known-good
 input and reject a known-bad one. That is the minimum bar for shipping a
 gate, and it is not a high one.
 
